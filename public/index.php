@@ -8,6 +8,10 @@ $exercises = [
     ['01', 'Secure PHP configuration & error handling', [
         '/error_test.php' => 'Trigger E_NOTICE / E_WARNING / E_ERROR and check the log',
     ]],
+    ['02', 'Input validation & sanitization', [
+        '/form.php' => 'Contact form (server-side validation)',
+        '/form.php?novalidate=1' => 'Same form with browser validation switched off (to test the server side)',
+    ]],
 ];
 
 render_header('Home');

@@ -204,3 +204,30 @@ final class LogWatcher
         return (string) file_get_contents($this->file, false, null, $this->offset);
     }
 }
+
+/**
+ * Loads a page with a form, adds its CSRF token (if the form has one) and posts it.
+ *
+ * @param array<string, string> $fields
+ */
+function submit_form(Browser $browser, string $formPage, string $action, array $fields): Response
+{
+    $page = $browser->get($formPage);
+    if (str_contains($page->body, 'name="csrf_token"')) {
+        $fields += ['csrf_token' => $page->csrfToken()];
+    }
+
+    return $browser->post($action, $fields);
+}
+
+/** @return array<string, string> */
+function valid_contact(): array
+{
+    return [
+        'name' => 'Ada Lovelace',
+        'email' => 'ada@example.com',
+        'age' => '36',
+        'website' => 'https://example.com/ada',
+        'message' => 'Hello there!',
+    ];
+}

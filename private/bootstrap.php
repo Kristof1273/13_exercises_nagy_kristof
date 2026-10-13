@@ -54,3 +54,7 @@ date_default_timezone_set(config('app.timezone'));
 header_remove('X-Powered-By');
 
 ErrorHandler::register();
+
+// Sessions carry validation errors / results across redirects (Exercise 02).
+// They are hardened in Exercise 06.
+session_start();

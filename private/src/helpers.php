@@ -37,6 +37,28 @@ function query_string(string $key): string
     return is_string($value) ? $value : '';
 }
 
+/**
+ * Same as query_string() for POST fields.
+ */
+function post_string(string $key): string
+{
+    $value = $_POST[$key] ?? '';
+
+    return is_string($value) ? $value : '';
+}
+
+/**
+ * Reads a value from the session and removes it ("flash" data that survives
+ * exactly one redirect).
+ */
+function session_pull(string $key, mixed $default = null): mixed
+{
+    $value = $_SESSION[$key] ?? $default;
+    unset($_SESSION[$key]);
+
+    return $value;
+}
+
 function client_ip(): string
 {
     // Only REMOTE_ADDR is trustworthy. X-Forwarded-For is client-controlled
@@ -87,6 +109,7 @@ function nav_items(): array
     return [
         '/' => 'Home',
         '/error_test.php' => 'Error demo',
+        '/form.php' => 'Contact form',
     ];
 }
 
