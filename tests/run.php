@@ -23,8 +23,13 @@ require __DIR__ . '/lib.php';
 $root = dirname(__DIR__);
 $filter = $argv[1] ?? '';
 
-// Environment shared by every test server (test database, etc.).
-$commonEnv = [];
+// Environment shared by every test server: a throw-away test database.
+$testDb = $root . '/private/db/test.sqlite';
+foreach (glob($testDb . '*') ?: [] as $file) {
+    unlink($file);
+}
+$commonEnv = ['DB_DSN' => 'sqlite:' . $testDb];
+define('TEST_DB', $testDb);
 
 // Several servers with different settings; all share the same files/sessions.
 $servers = [

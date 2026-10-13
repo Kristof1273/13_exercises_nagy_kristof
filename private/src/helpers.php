@@ -145,6 +145,8 @@ function nav_items(): array
         '/' => 'Home',
         '/error_test.php' => 'Error demo',
         '/form.php' => 'Contact form',
+        '/register.php' => 'Register',
+        '/search.php' => 'Search users',
     ];
 }
 

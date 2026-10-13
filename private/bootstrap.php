@@ -55,8 +55,11 @@ header_remove('X-Powered-By');
 
 ErrorHandler::register();
 
-send_security_headers();
+// Command-line tools (bin/*.php) reuse the bootstrap but need no headers or session.
+if (PHP_SAPI !== 'cli') {
+    send_security_headers();
 
-// Sessions carry validation errors / results across redirects (Exercise 02).
-// They are hardened in Exercise 06.
-session_start();
+    // Sessions carry validation errors / results across redirects (Exercise 02).
+    // They are hardened in Exercise 06.
+    session_start();
+}

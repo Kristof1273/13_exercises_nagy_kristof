@@ -30,6 +30,15 @@ return [
         ),
     ],
 
+    // Exercise 04 — SQLite by default (zero setup). For MySQL set e.g.
+    //   DB_DSN="mysql:host=127.0.0.1;dbname=security_lab;charset=utf8mb4"
+    //   DB_USERNAME=... DB_PASSWORD=...
+    'db' => [
+        'dsn' => $env('DB_DSN', 'sqlite:' . __DIR__ . '/db/app.sqlite'),
+        'username' => $env('DB_USERNAME'),
+        'password' => $env('DB_PASSWORD'),
+    ],
+
     'paths' => [
         'root' => dirname(__DIR__),
         'private' => __DIR__,

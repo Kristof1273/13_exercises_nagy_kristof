@@ -15,6 +15,11 @@ $exercises = [
     ['03', 'XSS & CSRF protection', [
         '/form.php' => 'The contact form now carries a single-use CSRF token',
     ]],
+    ['04', 'SQL injection prevention', [
+        '/register.php' => 'Register a user (PDO prepared statement)',
+        '/search.php' => 'Search users by username (prepared statement)',
+        '/vulnerable_search.php' => 'Deliberately vulnerable search — try \' OR \'1\'=\'1  [demo]',
+    ]],
 ];
 
 render_header('Home');
