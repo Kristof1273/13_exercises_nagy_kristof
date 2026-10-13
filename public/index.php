@@ -35,6 +35,9 @@ $exercises = [
     ['Extra', 'Encryption & decryption', [
         '/notes.php' => 'Encrypted notes (AES-256-CBC + HMAC-SHA256)',
     ]],
+    ['Extra', 'Content Security Policy', [
+        '/csp_test.php' => "Check that inline scripts are blocked while 'self' scripts run",
+    ]],
 ];
 
 render_header('Home');

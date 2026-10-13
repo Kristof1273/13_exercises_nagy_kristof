@@ -118,3 +118,9 @@ pre { background: var(--code-bg); padding: 12px; border-radius: 6px; overflow-x:
 .muted { color: var(--muted); }
 .badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--code-bg); color: var(--muted); }
 .danger-banner { background: var(--err-bg); color: var(--err-text); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-weight: 600; }
+.hidden-probe { display: none; }
+.card > :first-child { margin-top: 0; }
+.card > :last-child { margin-bottom: 0; }
+.nav { align-items: center; }
+.nav button { padding: 4px 12px; font-size: 0.85rem; }
+details { margin: 4px 0 12px; }

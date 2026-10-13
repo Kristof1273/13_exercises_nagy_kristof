@@ -130,6 +130,23 @@ function send_security_headers(): void
     header('Referrer-Policy: same-origin');              // don't leak URLs to other sites
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 
+    // Extra Mile 3 — Content-Security-Policy.
+    // script-src 'self': only script FILES from our own origin may run. Inline
+    // <script> blocks, onclick="…" attributes and javascript: URLs are refused,
+    // so even an XSS hole that slips through output encoding cannot run code.
+    header('Content-Security-Policy: ' . implode('; ', [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self'",           // all CSS is in /assets/app.css, no inline styles
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "object-src 'none'",          // no Flash/Java plugins
+        "base-uri 'none'",            // no <base href> hijacking of relative URLs
+        "form-action 'self'",         // forms may only post to us
+        "frame-ancestors 'none'",     // nobody may frame us (modern X-Frame-Options)
+    ]));
+
     if (is_https()) {
         // Browsers remember to use HTTPS only for this host for one year.
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
@@ -153,9 +170,11 @@ function require_demo_mode(): void
  */
 function nav_items(): array
 {
-    $items = [
-        '/' => 'Home',
-        '/error_test.php' => 'Error demo',
+    $items = ['/' => 'Home'];
+    if (config('app.demo_pages')) {
+        $items['/error_test.php'] = 'Error demo';
+    }
+    $items += [
         '/form.php' => 'Contact form',
         '/search.php' => 'Search users',
     ];
