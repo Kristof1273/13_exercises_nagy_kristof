@@ -27,12 +27,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $username = trim(post_string('username'));
     $password = post_string('password');
 
-    if ($username !== '' && $password !== '' && Auth::attempt($username, $password)) {
+    $result = ($username !== '' && $password !== '') ? Auth::attempt($username, $password) : LoginResult::failed();
+    if ($result->success) {
         redirect('/dashboard.php');
     }
 
-    // Same message for "no such user" and "wrong password" (no user enumeration).
-    $error = 'Invalid username or password.';
+    if ($result->isBlocked()) {
+        // Exercise 07: 5 failures from this IP within 10 minutes.
+        http_response_code(429);
+        header('Retry-After: ' . $result->retryAfter);
+        $error = sprintf('Too many failed login attempts. Please try again in %d minute(s).', (int) ceil($result->retryAfter / 60));
+    } else {
+        // Same message for "no such user" and "wrong password" (no user enumeration).
+        $error = 'Invalid username or password.';
+    }
 }
 
 render_header('Log in');

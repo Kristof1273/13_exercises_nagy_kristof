@@ -54,10 +54,18 @@ return [
         'bind_user_agent' => true,
     ],
 
+    // Exercise 07 — brute-force protection
+    'security' => [
+        'login_max_attempts' => 5,          // failed logins per IP ...
+        'login_window' => 600,              // ... within 10 minutes -> blocked
+        'repeated_failures_warning' => 3,   // log a warning from the 3rd failure on
+    ],
+
     'paths' => [
         'root' => dirname(__DIR__),
         'private' => __DIR__,
         'logs' => __DIR__ . '/logs',
+        'security_log' => __DIR__ . '/logs/security.log',
         'sessions' => __DIR__ . '/sessions',
     ],
 ];

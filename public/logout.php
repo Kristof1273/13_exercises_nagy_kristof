@@ -16,7 +16,7 @@ if (!Auth::check()) {
     redirect('/login.php');
 }
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && Csrf::validate('logout', post_string(Csrf::FIELD))) {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && Csrf::passes('logout')) {
     Auth::logout(); // empties the session, deletes the cookie, destroys server-side data
     redirect('/login.php?status=logged_out');
 }

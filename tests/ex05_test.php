@@ -90,7 +90,7 @@ test('logout destroys the session and its cookie', function (): void {
     $sessionId = $browser->cookies[$name];
 
     $dashboard = $browser->get('/dashboard.php');
-    $r = $browser->post('/logout.php', ['csrf_token' => $dashboard->csrfToken()]);
+    $r = $browser->post('/logout.php', ['csrf_token' => $dashboard->csrfToken('/logout.php')]);
     assert_same('/login.php?status=logged_out', $r->location(), 'redirect');
     $deleted = array_filter($r->headerAll('Set-Cookie'), static fn (string $c): bool => str_starts_with($c, $name . '=deleted') || str_starts_with($c, $name . '=;'));
     assert_true($deleted !== [], 'cookie deletion header sent');

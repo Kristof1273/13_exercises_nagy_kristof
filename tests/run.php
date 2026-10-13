@@ -99,6 +99,9 @@ foreach ($files as $file) {
     if ($filter !== '' && !str_contains(basename($file), $filter)) {
         continue;
     }
+    // Each file starts with a clean brute-force counter (all tests come from 127.0.0.1).
+    (new PDO('sqlite:' . TEST_DB))->exec('DELETE FROM login_attempts');
+
     $GLOBALS['TESTS'] = [];
     require $file;
 

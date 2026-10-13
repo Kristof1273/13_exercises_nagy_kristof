@@ -35,6 +35,13 @@ final class ErrorHandler
             return false; // silenced with @ or excluded by error_reporting
         }
 
+        // Exercise 07: also record it in the security log with request context.
+        SecurityLogger::error('PHP_ERROR', $message, [
+            'severity' => self::severityName($severity),
+            'file' => self::relativePath($file),
+            'line' => $line,
+        ]);
+
         // false = continue with PHP's standard handler, which writes the entry
         // to error_log because log_errors=On (and displays nothing).
         return false;
@@ -53,6 +60,11 @@ final class ErrorHandler
             PHP_EOL,
             $e->getTraceAsString()
         ));
+        SecurityLogger::error('UNCAUGHT_EXCEPTION', $e->getMessage(), [
+            'class' => $e::class,
+            'file' => self::relativePath($e->getFile()),
+            'line' => $e->getLine(),
+        ]);
 
         self::renderErrorPage();
     }
@@ -64,8 +76,35 @@ final class ErrorHandler
         $error = error_get_last();
         if ($error !== null && in_array($error['type'], self::FATAL_TYPES, true)) {
             // PHP has already written the fatal error to error_log (log_errors=On).
+            SecurityLogger::error('FATAL_ERROR', $error['message'], [
+                'severity' => self::severityName($error['type']),
+                'file' => self::relativePath($error['file']),
+                'line' => $error['line'],
+            ]);
             self::renderErrorPage();
         }
+    }
+
+    private static function severityName(int $severity): string
+    {
+        return match ($severity) {
+            E_ERROR => 'E_ERROR',
+            E_WARNING => 'E_WARNING',
+            E_PARSE => 'E_PARSE',
+            E_NOTICE => 'E_NOTICE',
+            E_CORE_ERROR => 'E_CORE_ERROR',
+            E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+            E_USER_ERROR => 'E_USER_ERROR',
+            E_USER_WARNING => 'E_USER_WARNING',
+            E_USER_NOTICE => 'E_USER_NOTICE',
+            E_DEPRECATED, E_USER_DEPRECATED => 'E_DEPRECATED',
+            default => 'E_' . $severity,
+        };
+    }
+
+    private static function relativePath(string $file): string
+    {
+        return str_starts_with($file, APP_ROOT) ? ltrim(substr($file, strlen(APP_ROOT)), '/\\') : $file;
     }
 
     private static function renderErrorPage(): void

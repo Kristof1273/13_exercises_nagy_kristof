@@ -62,4 +62,7 @@ if (PHP_SAPI !== 'cli') {
     // Hardened session: secure cookie flags, strict mode, idle timeout and
     // fingerprint check (Exercise 06).
     Session::start();
+
+    // Exercise 07: log request parameters that look like SQLi / XSS probes.
+    AttackDetector::inspectRequest();
 }

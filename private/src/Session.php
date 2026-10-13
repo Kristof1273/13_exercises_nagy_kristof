@@ -58,7 +58,9 @@ final class Session
         if (is_string($presentedId) && $presentedId !== session_id()) {
             // Strict mode threw away an ID it did not know: forged, tampered with,
             // or belonging to a session that no longer exists.
-            self::onUnknownSessionId($presentedId);
+            SecurityLogger::warning('SESSION_ID_REJECTED', 'Unknown session ID presented (tampered, forged or expired) — new ID issued', [
+                'presented_id_prefix' => substr($presentedId, 0, 6) . '…',
+            ]);
         }
 
         self::enforceIdleTimeout();
@@ -106,11 +108,15 @@ final class Session
         $last = $_SESSION['_last_activity'] ?? null;
 
         if (is_int($last) && $now - $last > self::idleTimeout()) {
-            $wasLoggedIn = isset($_SESSION['user']);
+            $user = $_SESSION['user'] ?? null;
             self::wipe();
-            if ($wasLoggedIn) {
+            if (is_array($user)) {
                 self::$endReason = 'expired';
-                self::onExpired($now - $last);
+                SecurityLogger::info('SESSION_EXPIRED', 'Session ended after the idle timeout', [
+                    'user_id' => $user['id'] ?? null,
+                    'username' => $user['username'] ?? null,
+                    'idle_seconds' => $now - $last,
+                ]);
             }
         }
 
@@ -133,9 +139,17 @@ final class Session
         }
 
         if ($mismatch !== []) {
+            $user = $_SESSION['user'] ?? null;
             self::wipe();
             self::$endReason = 'fingerprint';
-            self::onFingerprintMismatch($stored, $current, $mismatch);
+            // Possible session hijacking: the cookie is being used from another client.
+            SecurityLogger::alert('SESSION_FINGERPRINT_MISMATCH', 'Session used from a different IP/User-Agent — session destroyed', [
+                'user_id' => is_array($user) ? ($user['id'] ?? null) : null,
+                'username' => is_array($user) ? ($user['username'] ?? null) : null,
+                'changed' => $mismatch,
+                'expected' => $stored,
+                'actual' => $current,
+            ]);
         }
     }
 
@@ -171,24 +185,5 @@ final class Session
             '0', 'false', 'off', 'no' => false,
             default => is_https(), // 'auto'
         };
-    }
-
-    // --- hooks for security logging (Exercise 07) ---------------------------
-
-    private static function onUnknownSessionId(string $presentedId): void
-    {
-    }
-
-    private static function onExpired(int $idleSeconds): void
-    {
-    }
-
-    /**
-     * @param array<string, mixed>  $stored
-     * @param array<string, string> $current
-     * @param list<string>          $mismatch
-     */
-    private static function onFingerprintMismatch(array $stored, array $current, array $mismatch): void
-    {
     }
 }

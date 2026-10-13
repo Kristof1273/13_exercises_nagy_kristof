@@ -28,6 +28,10 @@ $exercises = [
     ['06', 'Session security & cookie hardening', [
         '/dashboard.php' => 'Dashboard shows the session binding and timeout',
     ]],
+    ['07', 'Security logging', [
+        '/change_password.php' => 'Change password (logged as a sensitive action)',
+        '/login.php' => 'Fail the login 5 times in a row to trigger the brute-force block',
+    ]],
 ];
 
 render_header('Home');

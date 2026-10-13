@@ -38,7 +38,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             } else {
                 // Exercise 05: only the bcrypt hash is stored, never the password itself.
                 // Prepared statement with bound parameters (see UserRepository::create).
-                $users->create($old['username'], $old['email'], Auth::hashPassword($password));
+                $id = $users->create($old['username'], $old['email'], Auth::hashPassword($password));
+                SecurityLogger::info('USER_REGISTERED', 'New account created', ['user_id' => $id, 'username' => $old['username']]);
                 $_SESSION['registered_username'] = $old['username'];
                 redirect('/register.php');
             }

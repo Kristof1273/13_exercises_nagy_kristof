@@ -46,14 +46,7 @@ final class Csrf
 
     public static function validate(string $formId, string $submitted): bool
     {
-        $expected = $_SESSION[self::SESSION_KEY][$formId] ?? null;
-        unset($_SESSION[self::SESSION_KEY][$formId]); // single use
-
-        if (!is_string($expected) || $submitted === '') {
-            return false;
-        }
-
-        return hash_equals($expected, $submitted);
+        return self::failureReason($formId, $submitted) === null;
     }
 
     /**
@@ -61,10 +54,43 @@ final class Csrf
      */
     public static function check(string $formId): void
     {
-        if (self::validate($formId, post_string(self::FIELD))) {
-            return;
+        if (!self::passes($formId)) {
+            abort(403, 'Request rejected', 'The security token is missing, expired or invalid. Please reload the form and try again.');
+        }
+    }
+
+    /**
+     * Like check(), but lets the caller decide what to do on failure.
+     * Every failure is written to the security log (Exercise 07).
+     */
+    public static function passes(string $formId): bool
+    {
+        $reason = self::failureReason($formId, post_string(self::FIELD));
+        if ($reason === null) {
+            return true;
         }
 
-        abort(403, 'Request rejected', 'The security token is missing, expired or invalid. Please reload the form and try again.');
+        SecurityLogger::alert('CSRF_TOKEN_MISMATCH', 'Request rejected: CSRF token ' . $reason, [
+            'form' => $formId,
+            'reason' => $reason,
+            'origin' => $_SERVER['HTTP_ORIGIN'] ?? null,
+            'referer' => $_SERVER['HTTP_REFERER'] ?? null,
+        ]);
+
+        return false;
+    }
+
+    /** null = valid; otherwise why it failed. */
+    private static function failureReason(string $formId, string $submitted): ?string
+    {
+        $expected = $_SESSION[self::SESSION_KEY][$formId] ?? null;
+        unset($_SESSION[self::SESSION_KEY][$formId]); // single use
+
+        return match (true) {
+            $submitted === '' => 'missing',
+            !is_string($expected) => 'not issued for this session (expired, replayed or foreign)',
+            !hash_equals($expected, $submitted) => 'mismatch',
+            default => null,
+        };
     }
 }

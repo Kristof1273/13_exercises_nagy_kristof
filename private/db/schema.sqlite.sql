@@ -9,3 +9,13 @@ CREATE TABLE IF NOT EXISTS users (
     password   VARCHAR(255) NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Failed login attempts for brute-force protection (Exercise 07)
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip           VARCHAR(45)  NOT NULL,
+    username     VARCHAR(255) NOT NULL,
+    attempted_at INTEGER      NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_time ON login_attempts (ip, attempted_at);

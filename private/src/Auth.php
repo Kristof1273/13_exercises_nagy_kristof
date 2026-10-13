@@ -49,14 +49,51 @@ final class Auth
         return $errors;
     }
 
-    public static function attempt(string $username, string $password): bool
+    public static function attempt(string $username, string $password): LoginResult
     {
+        $ip = client_ip();
+        $throttle = LoginThrottle::default();
+
+        // Exercise 07 — brute-force protection: a blocked IP is refused before the
+        // password is even checked, so it learns nothing from further guesses.
+        $wait = $throttle->retryAfter($ip);
+        if ($wait > 0) {
+            SecurityLogger::alert('LOGIN_BLOCKED', 'Login attempt refused: too many recent failures from this IP', [
+                'username' => $username,
+                'retry_after_seconds' => $wait,
+            ]);
+
+            return LoginResult::blocked($wait);
+        }
+
         $users = UserRepository::default();
         $user = $users->findByUsername($username);
 
         $hash = is_string($user['password'] ?? null) ? $user['password'] : self::DUMMY_HASH;
         if (!password_verify($password, $hash) || $user === null) {
-            return false;
+            $failures = $throttle->recordFailure($ip, $username);
+            SecurityLogger::warning('LOGIN_FAILED', 'Failed login attempt', [
+                'username' => $username,
+                'reason' => $user === null ? 'unknown_user' : 'wrong_password',
+                'failures_in_window' => $failures,
+            ]);
+
+            if ($failures >= $throttle->maxAttempts()) {
+                SecurityLogger::alert('BRUTE_FORCE_DETECTED', sprintf(
+                    '%d failed logins from this IP within %d minutes — further attempts are blocked',
+                    $failures,
+                    $throttle->windowMinutes()
+                ), ['username' => $username, 'failures_in_window' => $failures]);
+
+                return LoginResult::blocked($throttle->retryAfter($ip));
+            }
+            if ($failures >= (int) config('security.repeated_failures_warning')) {
+                SecurityLogger::warning('REPEATED_FAILED_LOGINS', 'Several failed logins from the same IP', [
+                    'failures_in_window' => $failures,
+                ]);
+            }
+
+            return LoginResult::failed();
         }
 
         // Keep hashes up to date when PHP's default algorithm or our cost changes.
@@ -65,8 +102,12 @@ final class Auth
         }
 
         self::startAuthenticatedSession((int) $user['id'], (string) $user['username']);
+        SecurityLogger::info('LOGIN_SUCCESS', 'User logged in', [
+            'user_id' => (int) $user['id'],
+            'username' => (string) $user['username'],
+        ]);
 
-        return true;
+        return LoginResult::success();
     }
 
     /**
@@ -125,6 +166,8 @@ final class Auth
      */
     public static function logout(): void
     {
+        SecurityLogger::info('LOGOUT', 'User logged out', ['user_id' => self::user()['id'] ?? null]);
+
         $_SESSION = [];
 
         $params = session_get_cookie_params();

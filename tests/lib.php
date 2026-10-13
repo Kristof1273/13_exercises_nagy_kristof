@@ -73,9 +73,17 @@ final class Response
         return $this->header('location');
     }
 
-    public function csrfToken(): string
+    /**
+     * CSRF token of the form that posts to $action (or the first one on the page).
+     * Pages can contain several forms, e.g. the logout button in the header.
+     */
+    public function csrfToken(?string $action = null): string
     {
-        if (preg_match('/name="csrf_token" value="([a-f0-9]{64})"/', $this->body, $m) !== 1) {
+        $html = $this->body;
+        if ($action !== null && preg_match('#<form[^>]*action="' . preg_quote($action, '#') . '"[^>]*>(.*?)</form>#s', $html, $form) === 1) {
+            $html = $form[1];
+        }
+        if (preg_match('/name="csrf_token" value="([a-f0-9]{64})"/', $html, $m) !== 1) {
             throw new AssertionFailed('No CSRF token found in the page');
         }
 
@@ -214,7 +222,7 @@ function submit_form(Browser $browser, string $formPage, string $action, array $
 {
     $page = $browser->get($formPage);
     if (str_contains($page->body, 'name="csrf_token"')) {
-        $fields += ['csrf_token' => $page->csrfToken()];
+        $fields += ['csrf_token' => $page->csrfToken($action)];
     }
 
     return $browser->post($action, $fields);
