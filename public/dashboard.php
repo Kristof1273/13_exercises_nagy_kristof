@@ -37,6 +37,7 @@ render_header('Dashboard');
     <ul class="list-links">
         <li><a href="/search.php">Search users</a></li>
         <li><a href="/change_password.php">Change password</a></li>
+        <li><a href="/notes.php">Encrypted notes</a></li>
     </ul>
 </section>
 <?php render_footer(); ?>

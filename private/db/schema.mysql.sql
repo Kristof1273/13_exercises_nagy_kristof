@@ -18,3 +18,13 @@ CREATE TABLE IF NOT EXISTS login_attempts (
     attempted_at INT UNSIGNED NOT NULL,
     INDEX idx_login_attempts_ip_time (ip, attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Encrypted notes (Extra Mile). body = "v1:" + base64(IV | HMAC | AES-256-CBC ciphertext)
+CREATE TABLE IF NOT EXISTS notes (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    body       TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notes_user (user_id),
+    CONSTRAINT fk_notes_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

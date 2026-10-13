@@ -61,6 +61,13 @@ return [
         'repeated_failures_warning' => 3,   // log a warning from the 3rd failure on
     ],
 
+    // Extra Mile — encryption key: APP_KEY (base64, 32 bytes) in production,
+    // otherwise a key file that is generated on first use (git-ignored).
+    'crypto' => [
+        'key' => $env('APP_KEY'),
+        'key_file' => __DIR__ . '/keys/app.key',
+    ],
+
     'paths' => [
         'root' => dirname(__DIR__),
         'private' => __DIR__,

@@ -161,7 +161,7 @@ function nav_items(): array
     ];
 
     return Auth::check()
-        ? $items + ['/dashboard.php' => 'Dashboard']
+        ? $items + ['/dashboard.php' => 'Dashboard', '/notes.php' => 'Notes']
         : $items + ['/register.php' => 'Register', '/login.php' => 'Log in'];
 }
 

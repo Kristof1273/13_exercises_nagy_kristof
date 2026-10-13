@@ -32,6 +32,9 @@ $exercises = [
         '/change_password.php' => 'Change password (logged as a sensitive action)',
         '/login.php' => 'Fail the login 5 times in a row to trigger the brute-force block',
     ]],
+    ['Extra', 'Encryption & decryption', [
+        '/notes.php' => 'Encrypted notes (AES-256-CBC + HMAC-SHA256)',
+    ]],
 ];
 
 render_header('Home');
@@ -41,7 +44,7 @@ render_header('Home');
 
 <?php foreach ($exercises as [$number, $title, $links]): ?>
     <section class="card">
-        <h2>Exercise <?= e($number) ?> — <?= e($title) ?></h2>
+        <h2><?= is_numeric($number) ? 'Exercise ' . e($number) : e($number) ?> — <?= e($title) ?></h2>
         <ul class="list-links">
             <?php foreach ($links as $href => $label): ?>
                 <li><a href="<?= e($href) ?>"><?= e($label) ?></a></li>
