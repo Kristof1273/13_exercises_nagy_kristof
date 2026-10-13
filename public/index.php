@@ -25,6 +25,9 @@ $exercises = [
         '/login.php' => 'Log in (password_verify + session_regenerate_id)',
         '/dashboard.php' => 'Protected page (redirects to login when anonymous)',
     ]],
+    ['06', 'Session security & cookie hardening', [
+        '/dashboard.php' => 'Dashboard shows the session binding and timeout',
+    ]],
 ];
 
 render_header('Home');

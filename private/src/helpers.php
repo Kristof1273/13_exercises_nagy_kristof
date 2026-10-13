@@ -76,6 +76,13 @@ function client_ip(): string
     return (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 }
 
+function is_https(): bool
+{
+    $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+
+    return ($https !== '' && $https !== 'off') || (string) ($_SERVER['SERVER_PORT'] ?? '') === '443';
+}
+
 function is_local_request(): bool
 {
     return in_array(client_ip(), ['127.0.0.1', '::1'], true);
@@ -122,6 +129,11 @@ function send_security_headers(): void
     header('X-Frame-Options: DENY');                     // no framing -> no clickjacking
     header('Referrer-Policy: same-origin');              // don't leak URLs to other sites
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+
+    if (is_https()) {
+        // Browsers remember to use HTTPS only for this host for one year.
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
 }
 
 /**

@@ -13,6 +13,8 @@ if (Auth::check()) {
 $statusMessages = [
     'login_required' => ['warn', 'Please log in to view that page.'],
     'logged_out' => ['ok', 'You have been logged out.'],
+    'expired' => ['warn', 'Your session expired after ' . Session::idleTimeoutLabel() . ' of inactivity. Please log in again.'],
+    'session_invalid' => ['error', 'Your session was ended for security reasons (your network or browser changed). Please log in again.'],
 ];
 $status = $statusMessages[query_string('status')] ?? null;
 

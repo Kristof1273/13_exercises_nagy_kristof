@@ -10,6 +10,7 @@ require __DIR__ . '/../private/bootstrap.php';
 
 $user = Auth::requireLogin();
 $authTime = (int) ($_SESSION['auth_time'] ?? time());
+$fingerprint = $_SESSION['_fingerprint'] ?? [];
 
 render_header('Dashboard');
 ?>
@@ -19,7 +20,11 @@ render_header('Dashboard');
     <h2>Your session</h2>
     <table>
         <tr><th>Logged in at</th><td><?= e(date('Y-m-d H:i:s T', $authTime)) ?></td></tr>
+        <tr><th>Idle timeout</th><td><?= e(Session::idleTimeoutLabel()) ?> (expires at <?= e(date('H:i:s T', time() + Session::secondsLeft())) ?> without activity)</td></tr>
+        <tr><th>Bound to IP</th><td><code><?= e($fingerprint['ip'] ?? '—') ?></code></td></tr>
+        <tr><th>Bound to User-Agent</th><td><code><?= e($fingerprint['user_agent'] ?? '—') ?></code></td></tr>
     </table>
+    <p class="muted">The session cookie is HttpOnly and SameSite=Strict (Secure on HTTPS). Changing it, switching browser or network, or idling for too long ends the session.</p>
 </section>
 
 <section class="card">

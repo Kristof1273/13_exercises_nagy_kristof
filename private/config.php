@@ -39,9 +39,25 @@ return [
         'password' => $env('DB_PASSWORD'),
     ],
 
+    // Exercise 06 — session hardening
+    'session' => [
+        'name' => 'SECSESSID',
+        // Idle timeout in seconds (30 minutes). The tests shorten it via the env var.
+        'idle_timeout' => (int) $env('SESSION_IDLE_TIMEOUT', '1800'),
+        // 'auto' = Secure flag only when the request arrived over HTTPS.
+        // Use SESSION_COOKIE_SECURE=1 in production / behind a TLS-terminating proxy.
+        'cookie_secure' => $env('SESSION_COOKIE_SECURE', 'auto'),
+        'samesite' => 'Strict',
+        // Fingerprint checked on every request (see Session::enforceFingerprint()).
+        // IP binding can log out mobile users whose IP changes; it is a trade-off.
+        'bind_ip' => filter_var($env('SESSION_BIND_IP', '1'), FILTER_VALIDATE_BOOL),
+        'bind_user_agent' => true,
+    ],
+
     'paths' => [
         'root' => dirname(__DIR__),
         'private' => __DIR__,
         'logs' => __DIR__ . '/logs',
+        'sessions' => __DIR__ . '/sessions',
     ],
 ];

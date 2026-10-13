@@ -79,6 +79,7 @@ final class Auth
         session_regenerate_id(true);
         $_SESSION['user'] = ['id' => $userId, 'username' => $username];
         $_SESSION['auth_time'] = time();
+        Session::bindToClient(); // Exercise 06: remember IP + User-Agent
     }
 
     /** @return array{id: int, username: string}|null */
@@ -103,7 +104,13 @@ final class Auth
     {
         $user = self::user();
         if ($user === null) {
-            redirect('/login.php?status=login_required');
+            // Tell the user WHY they have to log in again (fixed keys, see login.php).
+            $status = match (Session::endReason()) {
+                'expired' => 'expired',
+                'fingerprint' => 'session_invalid',
+                default => 'login_required',
+            };
+            redirect('/login.php?status=' . $status);
         }
 
         // Personal pages must not be stored by the browser or proxies

@@ -34,6 +34,8 @@ define('TEST_DB', $testDb);
 // Several servers with different settings; all share the same files/sessions.
 $servers = [
     'main' => ['port' => 8089, 'env' => []],
+    'short' => ['port' => 8090, 'env' => ['SESSION_IDLE_TIMEOUT' => '3']],
+    'secure' => ['port' => 8091, 'env' => ['SESSION_COOKIE_SECURE' => '1']],
 ];
 
 define('TEST_ROOT', $root);

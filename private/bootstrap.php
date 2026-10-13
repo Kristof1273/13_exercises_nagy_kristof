@@ -59,7 +59,7 @@ ErrorHandler::register();
 if (PHP_SAPI !== 'cli') {
     send_security_headers();
 
-    // Sessions carry validation errors / results across redirects (Exercise 02).
-    // They are hardened in Exercise 06.
-    session_start();
+    // Hardened session: secure cookie flags, strict mode, idle timeout and
+    // fingerprint check (Exercise 06).
+    Session::start();
 }
