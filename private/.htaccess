@@ -1,0 +1,3 @@
+# Defense in depth: the document root must be public/, but if this folder is
+# ever exposed by an Apache server, deny every request to it.
+Require all denied

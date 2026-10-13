@@ -1,0 +1,15 @@
+# Runtime data — never commit logs, databases, sessions or keys
+private/logs/*.log
+private/db/*.sqlite
+private/db/*.sqlite-*
+private/sessions/*
+!private/sessions/index.php
+private/keys/*
+!private/keys/index.php
+.env
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
