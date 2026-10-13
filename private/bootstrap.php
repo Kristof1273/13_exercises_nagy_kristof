@@ -55,6 +55,8 @@ header_remove('X-Powered-By');
 
 ErrorHandler::register();
 
+send_security_headers();
+
 // Sessions carry validation errors / results across redirects (Exercise 02).
 // They are hardened in Exercise 06.
 session_start();

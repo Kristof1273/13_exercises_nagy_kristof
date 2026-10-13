@@ -16,6 +16,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     exit('Method Not Allowed');
 }
 
+// Exercise 03 — reject the request unless it carries the token we issued.
+Csrf::check('contact');
+
 // ---------------------------------------------------------------------------
 // 1) Read the raw input. post_string() rejects arrays (name[]=x) outright.
 // ---------------------------------------------------------------------------

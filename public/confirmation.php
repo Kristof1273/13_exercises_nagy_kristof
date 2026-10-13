@@ -19,8 +19,8 @@ render_header('Thank you');
         <table>
             <tr>
                 <th>Name</th>
-                <?php /* name and message were already HTML-encoded in private/process.php */ ?>
-                <td><?= $data['name'] ?></td>
+                <?php /* name/message were already encoded in process.php -> no double encoding */ ?>
+                <td><?= e($data['name'], false) ?></td>
             </tr>
             <tr><th>Email</th><td><?= e($data['email']) ?></td></tr>
             <tr><th>Age</th><td><?= e($data['age']) ?></td></tr>
@@ -34,7 +34,7 @@ render_header('Thank you');
                     <?php endif; ?>
                 </td>
             </tr>
-            <tr><th>Message</th><td><?= nl2br($data['message']) ?></td></tr>
+            <tr><th>Message</th><td><?= nl2br(e($data['message'], false)) ?></td></tr>
         </table>
     </section>
     <p><a href="/form.php">Send another message</a></p>

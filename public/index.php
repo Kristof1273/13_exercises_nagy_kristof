@@ -12,6 +12,9 @@ $exercises = [
         '/form.php' => 'Contact form (server-side validation)',
         '/form.php?novalidate=1' => 'Same form with browser validation switched off (to test the server side)',
     ]],
+    ['03', 'XSS & CSRF protection', [
+        '/form.php' => 'The contact form now carries a single-use CSRF token',
+    ]],
 ];
 
 render_header('Home');

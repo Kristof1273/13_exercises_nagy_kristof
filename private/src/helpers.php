@@ -19,11 +19,21 @@ function config(string $key, mixed $default = null): mixed
 }
 
 /**
- * HTML-escapes a value for output in HTML text or a quoted attribute.
+ * Output encoding for HTML text and quoted attributes (Exercise 03).
+ *
+ * EVERY piece of user-supplied data is printed through this function:
+ *   - ENT_QUOTES encodes both " and ' (attribute break-out),
+ *   - ENT_SUBSTITUTE replaces invalid UTF-8 instead of returning '',
+ *   - 'UTF-8' is stated explicitly.
+ *
+ * $doubleEncode = false is only used for values that were already encoded on
+ * input (the Exercise 02 requirement for name/message): existing entities are
+ * kept, everything else is still encoded. That is safe because an entity such
+ * as &lt; can never turn back into markup.
  */
-function e(string|int|float|null $value): string
+function e(string|int|float|null $value, bool $doubleEncode = true): string
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', $doubleEncode);
 }
 
 /**
@@ -87,6 +97,31 @@ function redirect(string $path, int $status = 303): never
     }
     header('Location: ' . $path, true, $status);
     exit;
+}
+
+/**
+ * Renders a minimal error page and stops.
+ */
+function abort(int $status, string $title, string $message): never
+{
+    http_response_code($status);
+    render_header($title);
+    echo '<h1>' . e($title) . '</h1>' . PHP_EOL;
+    echo '<div class="alert alert-error" role="alert">' . e($message) . '</div>' . PHP_EOL;
+    echo '<p><a href="/">Back to the home page</a></p>' . PHP_EOL;
+    render_footer();
+    exit;
+}
+
+/**
+ * Baseline security headers sent with every response.
+ */
+function send_security_headers(): void
+{
+    header('X-Content-Type-Options: nosniff');           // no MIME sniffing (e.g. text served as script)
+    header('X-Frame-Options: DENY');                     // no framing -> no clickjacking
+    header('Referrer-Policy: same-origin');              // don't leak URLs to other sites
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 }
 
 /**

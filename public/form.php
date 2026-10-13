@@ -33,6 +33,7 @@ render_header('Contact form');
 <?php endif; ?>
 
 <form class="card narrow" method="post" action="/process.php"<?= $novalidate ? ' novalidate' : '' ?>>
+    <?= Csrf::field('contact') /* Exercise 03: new token on every form load */ ?>
     <div class="field">
         <label for="name">Name <span class="hint">required, max. 50 characters</span></label>
         <input type="text" id="name" name="name" required maxlength="50" value="<?= e($value('name')) ?>">
