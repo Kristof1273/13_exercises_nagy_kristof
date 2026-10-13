@@ -231,3 +231,26 @@ function valid_contact(): array
         'message' => 'Hello there!',
     ];
 }
+
+function login(Browser $browser, string $username, string $password): Response
+{
+    return submit_form($browser, '/login.php', '/login.php', ['username' => $username, 'password' => $password]);
+}
+
+/** alice is registered by the Exercise 04 tests. */
+function login_as_searcher(Browser $browser): void
+{
+    $r = login($browser, 'alice', 'Correct-Horse-9');
+    assert_same('/dashboard.php', $r->location(), 'login as alice');
+}
+
+function session_cookie_name(Browser $browser): ?string
+{
+    foreach (array_keys($browser->cookies) as $name) {
+        if (str_contains($name, 'SESS')) {
+            return $name;
+        }
+    }
+
+    return null;
+}

@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../private/bootstrap.php';
 
+// Email addresses are personal data: only logged-in users may search (Exercise 05).
+Auth::requireLogin();
+
 $username = trim(query_string('username'));
 $results = null;
 $error = null;

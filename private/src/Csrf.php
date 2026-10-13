@@ -20,12 +20,22 @@ final class Csrf
     public const FIELD = 'csrf_token';
     private const SESSION_KEY = '_csrf_tokens';
 
+    /** @var array<string, string> tokens already issued during this request */
+    private static array $issued = [];
+
     public static function generate(string $formId): string
     {
+        // One token per form per page load: if the same form appears twice on a
+        // page (e.g. the logout button in the header and on /logout.php) both
+        // copies must carry the same, currently valid token.
+        if (isset(self::$issued[$formId])) {
+            return self::$issued[$formId];
+        }
+
         $token = bin2hex(random_bytes(32));
         $_SESSION[self::SESSION_KEY][$formId] = $token;
 
-        return $token;
+        return self::$issued[$formId] = $token;
     }
 
     /** Hidden <input> to drop into a form. */

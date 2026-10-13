@@ -141,13 +141,16 @@ function require_demo_mode(): void
  */
 function nav_items(): array
 {
-    return [
+    $items = [
         '/' => 'Home',
         '/error_test.php' => 'Error demo',
         '/form.php' => 'Contact form',
-        '/register.php' => 'Register',
         '/search.php' => 'Search users',
     ];
+
+    return Auth::check()
+        ? $items + ['/dashboard.php' => 'Dashboard']
+        : $items + ['/register.php' => 'Register', '/login.php' => 'Log in'];
 }
 
 function render_header(string $title): void

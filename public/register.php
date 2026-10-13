@@ -16,12 +16,18 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         'email' => trim(post_string('email')),
     ];
 
+    $password = post_string('password');
+    $passwordConfirm = post_string('password_confirm');
+
     // Allow-list validation: only the characters we expect, nothing else.
     if (preg_match('/^[A-Za-z0-9_.-]{3,30}$/D', $old['username']) !== 1) {
         $errors['username'] = 'Username must be 3–30 characters: letters, digits, dot, dash or underscore.';
     }
     if (mb_strlen($old['email'], 'UTF-8') > 254 || filter_var($old['email'], FILTER_VALIDATE_EMAIL) === false) {
         $errors['email'] = 'Please enter a valid email address.';
+    }
+    foreach (Auth::validateNewPassword($password, $passwordConfirm, $old['username']) as $i => $message) {
+        $errors['password' . $i] = $message;
     }
 
     if ($errors === []) {
@@ -30,8 +36,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if ($users->usernameOrEmailTaken($old['username'], $old['email'])) {
                 $errors['username'] = 'This username or email address is already registered.';
             } else {
+                // Exercise 05: only the bcrypt hash is stored, never the password itself.
                 // Prepared statement with bound parameters (see UserRepository::create).
-                $users->create($old['username'], $old['email']);
+                $users->create($old['username'], $old['email'], Auth::hashPassword($password));
                 $_SESSION['registered_username'] = $old['username'];
                 redirect('/register.php');
             }
@@ -50,7 +57,7 @@ render_header('Register');
 <h1>Register</h1>
 
 <?php if (is_string($registered)): ?>
-    <div class="alert alert-ok">User <strong><?= e($registered) ?></strong> was registered.</div>
+    <div class="alert alert-ok">User <strong><?= e($registered) ?></strong> was registered. You can now <a href="/login.php">log in</a>.</div>
 <?php endif; ?>
 
 <?php if ($errors !== []): ?>
@@ -73,6 +80,14 @@ render_header('Register');
     <div class="field">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" required maxlength="254" autocomplete="email" value="<?= e($old['email']) ?>">
+    </div>
+    <div class="field">
+        <label for="password">Password <span class="hint">at least 10 characters</span></label>
+        <input type="password" id="password" name="password" required minlength="10" autocomplete="new-password">
+    </div>
+    <div class="field">
+        <label for="password_confirm">Repeat password</label>
+        <input type="password" id="password_confirm" name="password_confirm" required minlength="10" autocomplete="new-password">
     </div>
     <button type="submit">Create account</button>
 </form>

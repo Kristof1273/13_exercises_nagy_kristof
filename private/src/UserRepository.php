@@ -19,17 +19,46 @@ final class UserRepository
         return new self(Database::connection());
     }
 
-    public function create(string $username, string $email, ?string $passwordHash = null): int
+    public function create(string $username, string $email, string $passwordHash): int
     {
         $stmt = $this->db->prepare(
             'INSERT INTO users (username, email, password) VALUES (:username, :email, :password)'
         );
         $stmt->bindValue(':username', $username, PDO::PARAM_STR);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
-        $stmt->bindValue(':password', $passwordHash, $passwordHash === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':password', $passwordHash, PDO::PARAM_STR);
         $stmt->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    /** @return array{id: int, username: string, email: string, password: string}|null */
+    public function findByUsername(string $username): ?array
+    {
+        $stmt = $this->db->prepare('SELECT id, username, email, password FROM users WHERE username = :username');
+        $stmt->execute([':username' => $username]);
+        $user = $stmt->fetch();
+
+        return $user === false ? null : $user;
+    }
+
+    /** @return array{id: int, username: string, email: string, password: string}|null */
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT id, username, email, password FROM users WHERE id = :id');
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch();
+
+        return $user === false ? null : $user;
+    }
+
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET password = :password WHERE id = :id');
+        $stmt->bindValue(':password', $passwordHash, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     public function usernameOrEmailTaken(string $username, string $email): bool

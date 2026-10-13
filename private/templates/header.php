@@ -17,6 +17,13 @@
             <?php foreach (nav_items() as $href => $label): ?>
                 <a href="<?= e($href) ?>"<?= current_path() === $href ? ' aria-current="page"' : '' ?>><?= e($label) ?></a>
             <?php endforeach; ?>
+            <?php if (Auth::check()): ?>
+                <span class="nav-user">Signed in as <?= e(Auth::user()['username']) ?></span>
+                <form class="inline-form" method="post" action="/logout.php">
+                    <?= Csrf::field('logout') ?>
+                    <button type="submit" class="secondary">Log out</button>
+                </form>
+            <?php endif; ?>
         </nav>
     </div>
 </header>

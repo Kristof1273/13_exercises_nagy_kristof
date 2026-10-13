@@ -37,17 +37,18 @@ echo "Schema is up to date ({$pdo->getAttribute(PDO::ATTR_DRIVER_NAME)}).\n";
 
 if (isset($options['seed'])) {
     $users = new UserRepository($pdo);
+    // Local demo accounts only — documented in README.md.
     $demo = [
-        ['alice', 'alice@example.com'],
-        ['bob', 'bob@example.com'],
-        ['carol', 'carol@example.com'],
+        ['alice', 'alice@example.com', 'Wonderland-2026'],
+        ['bob', 'bob@example.com', 'Builder-Bob-2026'],
+        ['carol', 'carol@example.com', 'Christmas-Carol-2026'],
     ];
-    foreach ($demo as [$username, $email]) {
+    foreach ($demo as [$username, $email, $password]) {
         if ($users->usernameOrEmailTaken($username, $email)) {
             echo "  - {$username} already exists\n";
             continue;
         }
-        $users->create($username, $email);
+        $users->create($username, $email, Auth::hashPassword($password));
         echo "  + {$username}\n";
     }
 }

@@ -20,6 +20,11 @@ $exercises = [
         '/search.php' => 'Search users by username (prepared statement)',
         '/vulnerable_search.php' => 'Deliberately vulnerable search — try \' OR \'1\'=\'1  [demo]',
     ]],
+    ['05', 'Secure password handling', [
+        '/register.php' => 'Register with a password (bcrypt via password_hash)',
+        '/login.php' => 'Log in (password_verify + session_regenerate_id)',
+        '/dashboard.php' => 'Protected page (redirects to login when anonymous)',
+    ]],
 ];
 
 render_header('Home');
