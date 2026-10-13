@@ -8,6 +8,7 @@ declare(strict_types=1);
  *   php bin/init-db.php            create tables if missing
  *   php bin/init-db.php --seed     ... and add the demo users
  *   php bin/init-db.php --reset    delete the SQLite file first (all data is lost!)
+ *   php bin/init-db.php --unblock  forget all failed login attempts (lifts brute-force blocks)
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -17,7 +18,7 @@ if (PHP_SAPI !== 'cli') {
 
 require __DIR__ . '/../private/bootstrap.php';
 
-$options = getopt('', ['seed', 'reset']);
+$options = getopt('', ['seed', 'reset', 'unblock']);
 $dsn = (string) config('db.dsn');
 
 if (isset($options['reset'])) {
@@ -51,4 +52,9 @@ if (isset($options['seed'])) {
         $users->create($username, $email, Auth::hashPassword($password));
         echo "  + {$username}\n";
     }
+}
+
+if (isset($options['unblock'])) {
+    $deleted = $pdo->exec('DELETE FROM login_attempts');
+    echo "Removed {$deleted} failed login attempt(s); all IPs may log in again.\n";
 }

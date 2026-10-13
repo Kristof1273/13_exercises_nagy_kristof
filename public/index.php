@@ -6,7 +6,7 @@ require __DIR__ . '/../private/bootstrap.php';
 
 $exercises = [
     ['01', 'Secure PHP configuration & error handling', [
-        '/error_test.php' => 'Trigger E_NOTICE / E_WARNING / E_ERROR and check the log',
+        '/error_test.php' => 'Trigger E_NOTICE / E_WARNING / E_ERROR and check the log  [demo]',
     ]],
     ['02', 'Input validation & sanitization', [
         '/form.php' => 'Contact form (server-side validation)',
@@ -39,6 +39,15 @@ $exercises = [
         '/csp_test.php' => "Check that inline scripts are blocked while 'self' scripts run",
     ]],
 ];
+
+// Demo pages are not linked when they are switched off (production).
+$demoPages = ['/error_test.php', '/vulnerable_search.php'];
+if (!config('app.demo_pages')) {
+    foreach ($exercises as &$exercise) {
+        $exercise[2] = array_diff_key($exercise[2], array_flip($demoPages));
+    }
+    unset($exercise);
+}
 
 render_header('Home');
 ?>
