@@ -237,11 +237,14 @@ function login(Browser $browser, string $username, string $password): Response
     return submit_form($browser, '/login.php', '/login.php', ['username' => $username, 'password' => $password]);
 }
 
-/** alice is registered by the Exercise 04 tests. */
-function login_as_searcher(Browser $browser): void
+// Fixture account created by tests/run.php before any test file runs, so
+// every test file can also be run on its own (php tests/run.php ex06).
+const TESTER = ['username' => 'tester', 'email' => 'tester@example.com', 'password' => 'Quiet-Harbor-42'];
+
+function login_as_tester(Browser $browser): void
 {
-    $r = login($browser, 'alice', 'Correct-Horse-9');
-    assert_same('/dashboard.php', $r->location(), 'login as alice');
+    $r = login($browser, TESTER['username'], TESTER['password']);
+    assert_same('/dashboard.php', $r->location(), 'login as tester');
 }
 
 function session_cookie_name(Browser $browser): ?string
@@ -253,4 +256,24 @@ function session_cookie_name(Browser $browser): ?string
     }
 
     return null;
+}
+
+/** Registers a user through the real registration form. */
+function register_user(Browser $browser, string $username, string $email, string $password = ''): Response
+{
+    $fields = ['username' => $username, 'email' => $email];
+    if ($password !== '') {
+        $fields += ['password' => $password, 'password_confirm' => $password];
+    }
+
+    return submit_form($browser, '/register.php', '/register.php', $fields);
+}
+
+/** Search requires a logged-in user (from Exercise 05 on). */
+function search_browser(): Browser
+{
+    $browser = new Browser(SERVER_URLS['main']);
+    login_as_tester($browser);
+
+    return $browser;
 }

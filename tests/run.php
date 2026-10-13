@@ -83,6 +83,13 @@ foreach ($servers as $name => $server) {
     }
 }
 
+// Fixture account used by most test files.
+$fixture = register_user(new Browser(SERVER_URLS['main']), TESTER['username'], TESTER['email'], TESTER['password']);
+if ($fixture->status !== 303) {
+    fwrite(STDERR, "Could not create the fixture user (HTTP {$fixture->status})\n");
+    exit(1);
+}
+
 $files = glob(__DIR__ . '/ex*_test.php') ?: [];
 sort($files);
 

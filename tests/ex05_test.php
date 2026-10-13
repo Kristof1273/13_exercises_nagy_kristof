@@ -34,7 +34,7 @@ test('weak or mismatching passwords are rejected', function (): void {
 
 test('wrong password and unknown user give the same generic error', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    $wrong = login($browser, 'dave', 'not-the-password');
+    $wrong = login($browser, TESTER['username'], 'not-the-password');
     $unknown = login($browser, 'nobody-here', 'not-the-password');
     assert_same(200, $wrong->status, 'wrong password status');
     assert_contains('Invalid username or password.', $wrong->body, 'wrong password');
@@ -46,7 +46,7 @@ test('successful login regenerates the session ID (no session fixation)', functi
     $browser->get('/login.php');
     $name = session_cookie_name($browser);
     $before = $browser->cookies[$name] ?? '';
-    $r = login($browser, 'dave', 'Purple-Monkey-77');
+    $r = login($browser, TESTER['username'], TESTER['password']);
     assert_same('/dashboard.php', $r->location(), 'redirect after login');
     assert_true($before !== '' && $browser->cookies[$name] !== $before, 'session ID changed');
 
@@ -64,10 +64,10 @@ test('protected page redirects anonymous visitors to the login page', function (
 
 test('protected page is shown after login and not cached', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     $r = $browser->get('/dashboard.php');
     assert_same(200, $r->status, 'status');
-    assert_contains('Welcome, dave!', $r->body, 'greeting');
+    assert_contains('Welcome, tester!', $r->body, 'greeting');
     assert_contains('no-store', (string) $r->header('Cache-Control'), 'Cache-Control');
 });
 
@@ -78,14 +78,14 @@ test('search requires login', function (): void {
 
 test('logout via GET only asks for confirmation', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     $browser->get('/logout.php');
     assert_same(200, $browser->get('/dashboard.php')->status, 'still logged in');
 });
 
 test('logout destroys the session and its cookie', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     $name = session_cookie_name($browser);
     $sessionId = $browser->cookies[$name];
 

@@ -33,7 +33,7 @@ test('with SESSION_COOKIE_SECURE=1 the cookie is Secure and uses the __Host- pre
 
 test('normal login and navigation keep the session', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     foreach (['/dashboard.php', '/search.php?username=a', '/form.php', '/dashboard.php'] as $page) {
         assert_same(200, $browser->get($page)->status, $page);
     }
@@ -41,7 +41,7 @@ test('normal login and navigation keep the session', function (): void {
 
 test('a manually changed session cookie is rejected and replaced', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     $id = $browser->cookies['SECSESSID'];
     $tampered = substr($id, 0, -1) . ($id[-1] === 'a' ? 'b' : 'a');
     $browser->cookies['SECSESSID'] = $tampered;
@@ -60,7 +60,7 @@ test('a forged session ID chosen by an attacker is never adopted', function (): 
 
 test('changing the User-Agent ends the session (fingerprint)', function (): void {
     $browser = new Browser(SERVER_URLS['main']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     $browser->userAgent = 'Mozilla/5.0 (Hijacker)';
     $r = $browser->get('/dashboard.php');
     assert_same('/login.php?status=session_invalid', $r->location(), 'redirect');
@@ -72,7 +72,7 @@ test('changing the User-Agent ends the session (fingerprint)', function (): void
 
 test('activity within the idle window keeps the session alive (timeout = 3 s)', function (): void {
     $browser = new Browser(SERVER_URLS['short']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     sleep(2);
     assert_same(200, $browser->get('/dashboard.php')->status, 'after 2 s');
     sleep(2);
@@ -81,7 +81,7 @@ test('activity within the idle window keeps the session alive (timeout = 3 s)', 
 
 test('the session expires after the idle timeout', function (): void {
     $browser = new Browser(SERVER_URLS['short']);
-    login($browser, 'dave', 'Purple-Monkey-77');
+    login_as_tester($browser);
     usleep(4_500_000);
     $r = $browser->get('/dashboard.php');
     assert_same('/login.php?status=expired', $r->location(), 'redirect');
