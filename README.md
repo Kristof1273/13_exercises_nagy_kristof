@@ -23,8 +23,6 @@ exercises one by one.
 ## Quick start
 
 ```bash
-git clone <this repository> php-security-exercises
-cd php-security-exercises
 
 php bin/init-db.php --seed      # create the SQLite database + demo users
 php bin/serve.php               # → http://localhost:8000
