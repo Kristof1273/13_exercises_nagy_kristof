@@ -3,13 +3,12 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../private/bootstrap.php';
+// helper functions are defined in 13_exercises_nagy_kristof/private/src/Auth.php
 
 if (Auth::check()) {
     redirect('/dashboard.php');
 }
 
-// Fixed messages selected by a key: the URL can choose WHICH message is shown
-// but can never inject its own text into the page.
 $statusMessages = [
     'login_required' => ['warn', 'Please log in to view that page.'],
     'logged_out' => ['ok', 'You have been logged out.'],
@@ -22,8 +21,7 @@ $error = null;
 $username = '';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    Csrf::check('login'); // login CSRF: stops a third-party page from logging you into an attacker's account
-
+    Csrf::check('login');
     $username = trim(post_string('username'));
     $password = post_string('password');
 
@@ -33,12 +31,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 
     if ($result->isBlocked()) {
-        // Exercise 07: 5 failures from this IP within 10 minutes.
         http_response_code(429);
         header('Retry-After: ' . $result->retryAfter);
         $error = sprintf('Too many failed login attempts. Please try again in %d minute(s).', (int) ceil($result->retryAfter / 60));
     } else {
-        // Same message for "no such user" and "wrong password" (no user enumeration).
         $error = 'Invalid username or password.';
     }
 }

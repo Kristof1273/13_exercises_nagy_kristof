@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/../private/bootstrap.php';
 
-// Validation errors and the previously typed values come back from
-// private/process.php through the session (Post/Redirect/Get pattern).
 /** @var array<string, string> $errors */
 $errors = session_pull('contact_errors', []);
 /** @var array<string, string> $old */
 $old = session_pull('contact_old', []);
 
-// ?novalidate=1 switches off the browser's HTML5 checks so the server-side
-// validation can be tested by hand. Client-side checks are only a convenience.
 $novalidate = query_string('novalidate') === '1';
 
 $value = static fn (string $field): string => (string) ($old[$field] ?? '');
@@ -33,7 +29,7 @@ render_header('Contact form');
 <?php endif; ?>
 
 <form class="card narrow" method="post" action="/process.php"<?= $novalidate ? ' novalidate' : '' ?>>
-    <?= Csrf::field('contact') /* Exercise 03: new token on every form load */ ?>
+    <?= Csrf::field('contact')?>
     <div class="field">
         <label for="name">Name <span class="hint">required, max. 50 characters</span></label>
         <input type="text" id="name" name="name" required maxlength="50" value="<?= e($value('name')) ?>">

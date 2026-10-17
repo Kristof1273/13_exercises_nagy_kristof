@@ -1,25 +1,7 @@
 <?php
 
 declare(strict_types=1);
-
-/*
- * ⚠️  Exercise 04 — DELIBERATELY VULNERABLE search. DO NOT COPY THIS PATTERN. ⚠️
- *
- * The username from the URL is concatenated straight into the SQL string, so
- * the database cannot tell where our query ends and the attacker's input
- * begins. Try:
- *
- *   ?username=alice                                   -> 1 row (intended use)
- *   ?username=' OR '1'='1                             -> EVERY row
- *   ?username=' UNION SELECT id, username, password FROM users --
- *                                                     -> password hashes in the email column
- *
- * Safe version: search.php + UserRepository::searchByUsername().
- * Explanation:  docs/SQL_INJECTION.md
- *
- * Protection of the demo itself: only served to localhost while demo pages are
- * enabled (APP_DEMO_PAGES), so it can never be reached in production.
- */
+// vulnerable pattern!
 
 require __DIR__ . '/../private/bootstrap.php';
 require_demo_mode();
@@ -29,7 +11,7 @@ $sql = null;
 $rows = null;
 
 if ($username !== '') {
-    // ❌ VULNERABLE: user input becomes part of the SQL code.
+    // VULNERABLE: user input becomes part of the SQL code!
     $sql = "SELECT id, username, email FROM users WHERE username = '" . $username . "'";
     $rows = Database::connection()->query($sql)->fetchAll();
 }

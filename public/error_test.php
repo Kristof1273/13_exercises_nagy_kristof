@@ -2,15 +2,6 @@
 
 declare(strict_types=1);
 
-/*
- * Exercise 01 — error level demo  (demo page: localhost only)
- *
- * Each link triggers a real error of a different level. Expected result:
- *   - the browser shows NO error details (only a normal page or a generic 500 page),
- *   - the full message lands in private/logs/php_errors.log.
- *
- *   tail -f private/logs/php_errors.log
- */
 
 require __DIR__ . '/../private/bootstrap.php';
 require_demo_mode();
@@ -20,13 +11,11 @@ $status = null;
 
 switch ($level) {
     case 'notice':
-        // Genuine E_NOTICE in PHP 8: passing a function's return value by reference.
         $last = end(explode(',', 'a,b,c'));
-        $status = 'An E_NOTICE was raised. Nothing is shown here — check the log file.';
+        $status = 'An E_NOTICE was raised. Nothing is shown here — check the log file.'; // /home/kristof/projects/13_exercises_nagy_kristof/private/logs/php_errors.log
         break;
 
     case 'warning':
-        // Genuine E_WARNING in PHP 8: reading an array key that does not exist.
         $settings = [];
         $value = $settings['missing_key'];
         $status = 'An E_WARNING was raised. Nothing is shown here — check the log file.';

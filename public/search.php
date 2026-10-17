@@ -2,14 +2,9 @@
 
 declare(strict_types=1);
 
-/*
- * Exercise 04 — SAFE user search.
- * Compare with vulnerable_search.php and docs/SQL_INJECTION.md.
- */
 
 require __DIR__ . '/../private/bootstrap.php';
 
-// Email addresses are personal data: only logged-in users may search (Exercise 05).
 Auth::requireLogin();
 
 $username = trim(query_string('username'));
@@ -20,7 +15,6 @@ if ($username !== '') {
     if (mb_strlen($username, 'UTF-8') > 30) {
         $error = 'Search term is too long (max. 30 characters).';
     } else {
-        // The term is bound as a parameter — whatever it contains is treated as data.
         $results = UserRepository::default()->searchByUsername($username);
     }
 }

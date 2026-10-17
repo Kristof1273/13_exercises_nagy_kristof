@@ -2,19 +2,11 @@
 
 declare(strict_types=1);
 
-/**
- * Authentication (Exercise 05).
- */
+
 final class Auth
 {
-    /** bcrypt via PASSWORD_DEFAULT; cost 12 ≈ a few hundred ms per hash. */
     public const HASH_OPTIONS = ['cost' => 12];
 
-    /**
-     * A real bcrypt hash of a random throw-away string. When the username does
-     * not exist we still run password_verify() against it, so "unknown user"
-     * takes as long as "wrong password" — no user enumeration through timing.
-     */
     private const DUMMY_HASH = '$2y$12$Clhn02u6uENRfvfLAtHSvuHh8kfmropbGPVGHFNw4/GuVjrgc22z6';
 
     public static function hashPassword(string $password): string

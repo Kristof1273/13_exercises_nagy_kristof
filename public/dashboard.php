@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * Exercise 05 — protected page. Anonymous visitors are redirected to /login.php.
+ * exercise 05 — protected page
  */
 
 require __DIR__ . '/../private/bootstrap.php';
